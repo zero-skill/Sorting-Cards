@@ -1,104 +1,139 @@
-import "bootstrap";
-import "./style.css";
+let drawButton = document.getElementById("draw");
+let sortButton = document.getElementById("sort");
+let container = document.getElementById("container");
+let cards = [];
 
-//window.onload = function() {};
-const btn_draw = document.querySelector("#btn_draw");
-btn_draw.addEventListener("click", function(event) {
-  let txt_value = document.querySelector("#txt_value").value;
-  if (txt_value != "" || txt_value >= 1) {
-    for (let i = 1; i <= txt_value; i++) {
-      // alert(txt_value + "por " + i + " vez");
-      renderCard(".file-original");
+function randomNumber() {
+  let num = Math.floor(Math.random() * 13) + 1;
+  return num;
+}
+
+function cardValue(num) {
+  if (num > 1 && num < 11) {
+    return num.toString();
+  } else {
+    switch (num) {
+      case 1:
+        return "A";
+      case 11:
+        return "J";
+      case 12:
+        return "Q";
+      case 13:
+        return "K";
     }
-  } else {
-    alert("El input debe ser mayor a 0");
   }
-
-  //renderCard();
-});
-function addCard(where) {
-  let new_card = document.createElement("DIV");
-  new_card.setAttribute("class", "card");
-  document.querySelector(where).appendChild(new_card);
 }
 
-function renderCard(where) {
-  //asignamos valor de la carta y el tipo
-  let card_value = cardValue();
-  let card_type = cardType();
-
-  //creamos los elementos que contendran nuesta carta y le asignamos su clase
-  let new_card = document.createElement("DIV");
-  new_card.setAttribute("class", "card");
-  document.querySelector(where).appendChild(new_card);
-
-  let helper1 = document.createElement("DIV");
-  helper1.setAttribute("class", "card-header");
-  let helper2 = document.createElement("DIV");
-  helper2.setAttribute("class", "card-body");
-  let helper3 = document.createElement("DIV");
-  helper3.setAttribute("class", "card-footer");
-
-  //añadimos los elementos al nodo en el documento
-  document.querySelector(".card").appendChild(helper1);
-  document.querySelector(".card").appendChild(helper2);
-  document.querySelector(".card").appendChild(helper3);
-
-  //creamos elementos para cada parte de la carta
-  let type_to_card_header = document.createElement("P");
-  let value_to_card = document.createElement("P");
-  let type_to_card_footer = document.createElement("P");
-
-  //asignamos los valores al elemento
-  type_to_card_header.innerHTML = `${card_type}`;
-  value_to_card.innerHTML = `${card_value}`;
-  type_to_card_footer.innerHTML = `${card_type}`;
-
-  //coloreamos el tipo
-  if (card_type == "♥" || card_type == "♦") {
-    type_to_card_header.style.color = "red";
-    type_to_card_footer.style.color = "red";
-  } else {
-    type_to_card_header.style.color = "black";
-    type_to_card_footer.style.color = "black";
+function randomSuit() {
+  let suit = Math.floor(Math.random() * 4) + 1;
+  switch (suit) {
+    case 1:
+      return "♦";
+    case 2:
+      return "♥";
+    case 3:
+      return "♠";
+    case 4:
+      return "♣";
   }
-
-  //agregamos los elementos al nodo en el documento
-  document.querySelector(".card-header").appendChild(type_to_card_header);
-  document.querySelector(".card-body").appendChild(value_to_card);
-  document.querySelector(".card-footer").appendChild(type_to_card_footer);
 }
 
-function cardValue() {
-  let value = Math.floor(Math.random() * 13 + 1);
-  if (value == 11) {
-    value = "J";
+function printCards(num, suit, obj) {
+  num = cardValue(num);
+
+  let new_col = document.createElement("div");
+  new_col.className = "col-sm-1";
+
+  let card = document.createElement("div");
+  card.className = "card";
+
+  let card_body = document.createElement("div");
+  card_body.className = "card-body p-2";
+
+  let suit_top = document.createElement("h5");
+  suit_top.className = "card-title text-start";
+  suit_top.innerHTML = suit;
+
+  let num_card = document.createElement("h5");
+  num_card.className = "card-title  text-center";
+  num_card.innerHTML = num;
+
+  let suit_bottom = document.createElement("h5");
+  suit_bottom.className = "card-title  text-end upsidedown";
+  suit_bottom.innerHTML = suit;
+
+  if (suit === "♥" || suit === "♦") {
+    suit_top.style["color"] = "red";
+    suit_bottom.style["color"] = "red";
   }
-  if (value == 12) {
-    value = "Q";
-  }
-  if (value == 13) {
-    value = "K";
-  }
-  if (value == 1) {
-    value = "A";
-  }
-  return value;
+
+  card_body.appendChild(suit_top);
+  card_body.appendChild(num_card);
+  card_body.appendChild(suit_bottom);
+  card.appendChild(card_body);
+  new_col.appendChild(card);
+
+  obj.appendChild(new_col);
 }
 
-function cardType() {
-  let type = Math.floor(Math.random() * 4 + 1);
-  if (type == 1) {
-    type = "♥";
+function removeSorts() {
+  if (document.getElementsByClassName("new_row").length != 0) {
+    var new_rows = document.getElementsByClassName("new_row");
+    for (
+      let i = document.getElementsByClassName("new_row").length - 1;
+      i >= 0;
+      i--
+    ) {
+      container.removeChild(new_rows[i]);
+    }
   }
-  if (type == 2) {
-    type = "♦";
-  }
-  if (type == 3) {
-    type = "♣";
-  }
-  if (type == 4) {
-    type = "♠";
-  }
-  return type;
 }
+
+drawButton.onclick = function draw() {
+  let firstRow = document.getElementById("first-row");
+  firstRow.innerHTML = "";
+  cards = [];
+
+  removeSorts();
+
+  for (let i = 0; i < document.getElementById("amount").value; i++) {
+    let cardObj = { value: randomNumber(), suit: randomSuit() };
+    cards.push(cardObj);
+  }
+  cards.forEach(element => {
+    printCards(element.value, element.suit, firstRow);
+  });
+};
+
+sortButton.onclick = function sort() {
+  removeSorts();
+
+  let subtitle_row = document.createElement("div");
+  subtitle_row.className = "row m-2 new_row";
+
+  let subtitle = document.createElement("h4");
+  subtitle.className = "d-inline text-light p-0";
+  subtitle.innerHTML = "Sorted Cards: ";
+
+  subtitle_row.appendChild(subtitle);
+  container.appendChild(subtitle_row);
+
+  for (let wall = cards.length - 1; wall > 0; wall--) {
+    for (let index = 0; index < wall; index++) {
+      console.log(cards[index].value);
+      if (parseInt(cards[index].value) > parseInt(cards[index + 1].value)) {
+        console.log(cards[index].value + " " + cards[index + 1].value);
+        let aux = cards[index].value;
+        cards[index].value = cards[index + 1].value;
+        cards[index + 1].value = aux;
+      }
+    }
+    let new_row = document.createElement("div");
+    new_row.className = "row m-2 new-row";
+    container.appendChild(new_row);
+    for (let i = 0; i < cards.length; i++) {
+      printCards(cards[i].value, cards[i].suit, new_row);
+    }
+  }
+};
